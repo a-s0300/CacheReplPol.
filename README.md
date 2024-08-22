@@ -1,9 +1,9 @@
 # CacheReplPol.
 LRU_OPTIMAL replacement policy implementation
 
-to compile : 
+- to compile : 
               g++ 21116065_lru_optimal.cpp
-to run : 
+- to run : 
               ./a.out policy cache_size textfilecontainingaddress.txt
 
               policy : LRU / OPTIMAL
