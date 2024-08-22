@@ -2,12 +2,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
-// #include <assert.h>
 #include <unordered_map>
 #include <algorithm>
 #include <unordered_set>
 #include <limits.h>
-// #include <strings.h>
 using namespace std;
 typedef vector<string> vs;
 typedef vector<int> vi;
