@@ -2,16 +2,25 @@
 #include <fstream>
 #include <string>
 #include <vector>
+// #include <assert.h>
 #include <unordered_map>
 #include <algorithm>
 #include <unordered_set>
 #include <limits.h>
+// #include <strings.h>
 using namespace std;
 typedef vector<string> vs;
 typedef vector<int> vi;
 typedef vector<string>::iterator vsi;
 typedef unordered_set<string>::iterator usi;
 string a[50000];
+void rearrange(int &index,int &blocksize) {
+    if(index==blocksize-1) {
+        index=0;
+        return;
+    }
+    index++;
+}
 int main(int argc, char** argv) {
     ifstream fileHandler(argv[3]);
     int count=0;
@@ -26,16 +35,14 @@ int main(int argc, char** argv) {
     int blockSize=stoi(argv[2]);
     cout<<"Cache Size : "<<blockSize<<endl;
     string policy[] = {"LRU","OPTIMAL","FIFO"};
-    //CHECK FOR POLICY {LRU OR OPTIMAL}
-    //FOR LRU
     int access=0; int hits=0; int miss=0; int compMiss=0; int capMiss=0;
-    unordered_map<string,int>::iterator itr;
     //for LRU
     if(argv[1]==policy[0]){
-        unordered_map<string,int> lru;
+        unordered_set<string> lru;
         vs::iterator it;
         cout<<"LRU USED"<<endl;
         //code for LRU
+        unordered_set<string>::iterator itr;
         vs* cache = new vector<string>();
         for(int i=0;i<count;i++) {
             if(a[i]=="" || a[i]==" ") {
@@ -43,21 +50,19 @@ int main(int argc, char** argv) {
             }
             access++;
             itr=lru.find(a[i]);
+            it = find(cache->begin(),cache->end(), a[i]);
+            if(itr!=lru.end() && it==cache->end()) {
+                capMiss++;
+            }
             if(itr==lru.end()) {
                 compMiss++;
-                lru.insert({a[i],1});
+                lru.insert(a[i]);
             }
             if(cache->empty()) {
                 miss++;
                 cache->push_back(a[i]);
                 continue;
             }
-            it = find(cache->begin(),cache->end(), a[i]);
-
-            if(itr!=lru.end() && it==cache->end()) {
-                capMiss++;
-            }
-
             if(cache->size()<blockSize) {
                 if(it==cache->end()) {
                     miss++;
@@ -159,5 +164,51 @@ int main(int argc, char** argv) {
         cout<<"ACCESS : "<<access<<endl;
         cout<<"MISS : "<<miss<<endl<<"Compulsory Misses : "<<compMiss<<endl<<"Capacity Misses : "<<capMiss<<endl;
     }
-}
+    //FIFO
+    if(argv[1]==policy[2]) {
+        int index=0;
+        cout<<"FIFO USED"<<endl;
+        unordered_set<string> uset;
+        usi itr;
+        vs fifo;
+        vsi it;
+        for(int i=0;i<count;i++) {
+            if(a[i].empty() || a[i]==" ") {
+                continue;
+            }
 
+            if(fifo.empty()) {
+                miss++;
+                compMiss++;
+                fifo.push_back(a[i]);
+                uset.insert(a[i]);
+                continue;
+            }
+            it = find(fifo.begin(),fifo.end(),a[i]);
+            itr = uset.find(a[i]);
+            if(itr==uset.end()) {
+                uset.insert(a[i]);
+                compMiss++;
+                miss++;
+                if(fifo.size()<blockSize) {
+                    fifo.push_back(a[i]);
+                    continue;
+                }
+
+                fifo.at(index)=a[i];
+                rearrange(index,blockSize);
+                continue;
+            }
+            if(it==fifo.end()) {
+                miss++;
+                capMiss++;
+                fifo.at(index)=a[i];
+                rearrange(index,blockSize);
+                continue;
+            }
+            hits++;
+        }
+        cout<<"HITS : "<<hits<<endl<<"MISS : "<<miss<<endl<<"Compulsory Misses : "<<compMiss<<endl<<"Capacity Misses : "<<capMiss<<endl;
+
+    }
+}
