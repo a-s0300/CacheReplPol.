@@ -2,7 +2,7 @@
 LRU_OPTIMAL_FIFO replacement policy implementation
 
 - to compile : 
-              g++ 21116065_lru_optimal.cpp
+              g++ nitin_cacheRepl.cpp
 - to run : 
               ./a.out policy cache_size textfilecontainingaddress.txt
 
